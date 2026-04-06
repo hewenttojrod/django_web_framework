@@ -1,0 +1,14 @@
+# Exclude local runtime data and environment files from build context
+data/
+*.pyc
+__pycache__/
+venv/
+.env
+.git
+node_modules/
+**/node_modules/**
+.Python
+Scripts/allowed-commands.txt
+#ignore mds outside of README 
+*.md
+!README.*

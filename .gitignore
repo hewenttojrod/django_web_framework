@@ -1,0 +1,12 @@
+data/**
+meta/**
+.github/**
+__pycache__/
+.env
+__tests/
+*.pem
+*.sqlite3
+ui-tests/**
+node_modules
+Scripts/allowed-commands.txt
+web-core/workspace/**

@@ -1,0 +1,27 @@
+# Ignore runtime data directories and socket files so they are not sent in Docker build context
+data/
+data/**
+**/*.sock
+
+# Ignore manifest DBs and large generated files
+data/manifest/
+data/*.db
+data/**/MANZIP
+
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual envs
+env/
+venv/
+.venv/
+
+# Git
+.git/
+.github/
+
+# Editor
+.vscode/
+*.swp
