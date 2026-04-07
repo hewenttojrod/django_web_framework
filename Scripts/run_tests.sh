@@ -5,7 +5,7 @@ set -euo pipefail
 # otherwise fall back to local pytest
 if command -v docker-compose >/dev/null 2>&1 || command -v docker >/dev/null 2>&1; then
   echo "Running unit tests inside docker-compose service 'web_test'"
-  docker-compose -f docker/docker-compose.yml run --rm web_test python -m pytest -q || { echo "Unit tests inside container failed"; exit 1; }
+  docker compose -f docker/docker-compose.yml exec -T web_test python -m pytest -q || { echo "Unit tests inside container failed"; exit 1; }
 else
   echo "docker-compose not found - running pytest locally"
   if [ -f "requirements.txt" ]; then

@@ -2,8 +2,8 @@
 omit =
     */tests/*
     */migrations/*
-    core/asgi.py
-    core/wsgi.py
+    web_core/asgi.py
+    web_core/wsgi.py
 
 [report]
 exclude_lines =

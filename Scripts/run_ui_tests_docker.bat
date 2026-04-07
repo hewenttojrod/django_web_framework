@@ -4,39 +4,50 @@ setlocal
 rem Run Playwright UI tests inside the `ui` container. Ensure the `web` service is running.
 pushd "%~dp0.." >nul || (echo Failed to change directory & exit /b 1)
 
-echo Starting docker-compose services (detached) for tests (db, redis, web_test)...
-docker compose -f docker\docker-compose.yml up -d db redis web_test
+set COMPOSE_FILE=docker\docker-compose.yml
+
+echo Starting docker-compose services (detached) for tests (db, redis, web_test, ui)...
+docker compose -f "%COMPOSE_FILE%" up -d db redis web_test ui
 if %ERRORLEVEL% NEQ 0 (
 	echo Failed to start required services
- 	popd >nul
- 	endlocal
- 	exit /b %ERRORLEVEL%
+	popd >nul
+	endlocal
+	exit /b %ERRORLEVEL%
 )
 
-echo Preparing test sqlite DB inside the web_test container...
+echo Preparing test sqlite DB inside the web_test service...
 call Scripts\prepare_ui_test_db.bat
 if %ERRORLEVEL% NEQ 0 (
 	echo prepare_ui_test_db failed
- 	popd >nul
- 	endlocal
- 	exit /b %ERRORLEVEL%
+	popd >nul
+	endlocal
+	exit /b %ERRORLEVEL%
 )
 
-echo Running Playwright tests in the existing 'ui' container (single worker)...
+echo Running Playwright tests in the 'ui' service (single worker)...
 echo Cleaning old test directories inside the ui container and copying updated tests...
-echo Copying updated tests into the ui container (copying contents)...
-docker exec ui bash -lc "rm -rf /app/ui-tests/tests/tests || true; rm -rf /app/ui-tests/test-results || true"
-docker cp ui-tests/tests/. ui:/app/ui-tests/tests || echo Failed to copy ui-tests/tests into container
-docker cp ui-tests/playwright.config.mjs ui:/app/ui-tests/playwright.config.mjs 2>nul || echo No local playwright.config.mjs to copy
 
-echo Running Playwright tests in the existing 'ui' container (single worker) against web_test...
-docker exec ui bash -lc "cd /app/ui-tests && PLAYWRIGHT_BASE_URL=http://web-test:8000 npx --yes playwright test --workers=1 --reporter=html" %*
+rem Determine the container id for the ui service
+for /f "usebackq tokens=*" %%i in (`docker compose -f "%COMPOSE_FILE%" ps -q ui 2^>nul`) do set UI_CID=%%i
+if not defined UI_CID (
+	echo Could not determine ui container ID
+	popd >nul
+	endlocal
+	exit /b 1
+)
+
+docker compose -f "%COMPOSE_FILE%" exec -T ui bash -lc "rm -rf /app/ui-tests/tests/tests || true; rm -rf /app/ui-tests/test-results || true"
+docker cp ui-tests/tests/. %UI_CID%:/app/ui-tests/tests || echo Failed to copy ui-tests/tests into container
+docker cp ui-tests/playwright.config.mjs %UI_CID%:/app/ui-tests/playwright.config.mjs 2>nul || echo No local playwright.config.mjs to copy
+
+echo Running Playwright tests in the ui service against web_test...
+docker compose -f "%COMPOSE_FILE%" exec -T ui bash -lc "cd /app/ui-tests && PLAYWRIGHT_BASE_URL=http://web-test:8000 npx --yes playwright test --workers=1 --reporter=html" %*
 set RC=%ERRORLEVEL%
 
 echo Copying test artifacts from the ui container to the host at ui-tests\test-results...
 if exist ui-tests\test-results rmdir /s /q ui-tests\test-results
 mkdir ui-tests\test-results 2>nul || rem ignore
-docker cp ui:/app/ui-tests/test-results .\ui-tests || echo Failed to copy test-results (they may not exist)
+docker cp %UI_CID%:/app/ui-tests/test-results .\ui-tests || echo Failed to copy test-results (they may not exist)
 rem If docker created a nested test-results folder, move its contents up one level and remove the redundant folder
 if exist ui-tests\test-results\test-results (
 	echo Fixing nested test-results folder...

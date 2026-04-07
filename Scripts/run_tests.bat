@@ -17,8 +17,8 @@ if ERRORLEVEL 1 (
     exit /b 1
   )
 ) else (
-  echo Running inside docker-compose service 'web_test' using docker-compose -f docker\docker-compose.yml
-  docker-compose -f docker\docker-compose.yml run --rm web_test python -m pytest -q
+  echo Running inside docker-compose service 'web_test' using docker compose -f docker\docker-compose.yml
+  docker compose -f docker\docker-compose.yml exec -T web_test python -m pytest -q
   if ERRORLEVEL 1 (
     echo Unit tests inside container FAILED. Aborting.
     exit /b 1

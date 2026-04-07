@@ -2,28 +2,50 @@
 REM Run TaskBoard migrations (makemigrations for taskboard app, then migrate)
 SETLOCAL
 
-REM If a virtualenv activation script exists at ../venv, activate it
-IF EXIST "%~dp0..\venv\Scripts\activate.bat" (
-  call "%~dp0..\venv\Scripts\activate.bat"
+pushd "%~dp0.." >nul || (
+  echo Failed to change directory to repository root
+  exit /b 1
 )
 
-REM Ensure DJANGO_SETTINGS_MODULE is set
-IF "%DJANGO_SETTINGS_MODULE%"=="" SET DJANGO_SETTINGS_MODULE=core.settings
+set COMPOSE_FILE=docker\docker-compose.yml
 
-REM Run makemigrations for taskboard app
-python "%~dp0..\manage.py" makemigrations taskboard
-IF ERRORLEVEL 1 (
-  echo Makemigrations failed.
-  EXIT /B 1
+REM Try to run migrations inside a running 'web' container, otherwise run a one-off container
+for /f "usebackq tokens=*" %%i in (`docker compose -f "%COMPOSE_FILE%" ps -q web 2^>nul`) do set WEB_ID=%%i
+
+if defined WEB_ID (
+  echo Executing makemigrations and migrate inside running 'web' container...
+  docker compose -f "%COMPOSE_FILE%" exec -T web python manage.py makemigrations taskboard_module
+  if ERRORLEVEL 1 (
+    echo Makemigrations failed.
+    popd >nul
+    endlocal
+    EXIT /B 1
+  )
+  docker compose -f "%COMPOSE_FILE%" exec -T web python manage.py migrate
+  if ERRORLEVEL 1 (
+    echo Migrate failed.
+    popd >nul
+    endlocal
+    EXIT /B 1
+  )
+) else (
+  echo No running 'web' container; running one-off container to apply migrations...
+  docker compose -f "%COMPOSE_FILE%" run --rm web python manage.py makemigrations taskboard_module
+  if ERRORLEVEL 1 (
+    echo Makemigrations failed.
+    popd >nul
+    endlocal
+    EXIT /B 1
+  )
+  docker compose -f "%COMPOSE_FILE%" run --rm web python manage.py migrate
+  if ERRORLEVEL 1 (
+    echo Migrate failed.
+    popd >nul
+    endlocal
+    EXIT /B 1
+  )
 )
 
-REM Apply migrations
-python "%~dp0..\manage.py" migrate
-IF ERRORLEVEL 1 (
-  echo Migrate failed.
-  EXIT /B 1
-)
-
-ENDLOCAL
-echo Migrations completed successfully.
-pause
+popd >nul
+endlocal
+echo Migrations completed successfully (inside Docker).

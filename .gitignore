@@ -9,4 +9,4 @@ __tests/
 ui-tests/**
 node_modules
 Scripts/allowed-commands.txt
-#web-core/workspace/**
+#web_core/workspace/**

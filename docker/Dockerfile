@@ -1,31 +1,6 @@
-## Frontend build stage (produce compiled assets)
-FROM node:18-bullseye AS node-build
-WORKDIR /build
-
-# Ensure system build tools are available for native node modules
-RUN apt-get update \
-       && apt-get install -y --no-install-recommends \
-              python3 \
-              build-essential \
-              make \
-              g++ \
-              ca-certificates \
-       && rm -rf /var/lib/apt/lists/*
-
-# Copy the taskboard frontend sources and config
-COPY core/workspace/taskboard ./taskboard
-WORKDIR /build/taskboard
-
-# Install Node dependencies and build assets (use `npm ci` when a lockfile exists)
-RUN if [ -f package-lock.json ] ; then \
-                     npm ci --silent ; \
-              else \
-                     npm install --silent ; \
-              fi
-
-# Increase Node.js heap for large builds
-ENV NODE_OPTIONS=--max_old_space_size=8192
-RUN npm run build
+## Frontend build removed
+# Frontend assets should be built outside the Docker image (locally or in CI).
+# This Dockerfile no longer installs Node or runs `npm install`/`npm run build`.
 
 ## Python runtime stage
 FROM python:3.11-slim
@@ -51,12 +26,9 @@ RUN apt-get update \
               ca-certificates \
        && rm -rf /var/lib/apt/lists/*
 
-# Install Node.js (needed for Tailwind CLI in the web container)
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends curl gnupg ca-certificates \
-    && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
-    && apt-get install -y --no-install-recommends nodejs \
-    && rm -rf /var/lib/apt/lists/*
+# Note: Node.js installation removed. If Tailwind CLI is required inside the
+# container, install Node.js on the host or build assets prior to building the
+# Python image and copy the compiled assets into the image.
 
 # Ensure build tools for Python wheels are available
 RUN pip install --upgrade pip setuptools wheel
@@ -71,8 +43,15 @@ COPY . /app
 COPY docker/entrypoint.sh /app/docker/entrypoint.sh
 RUN chmod +x /app/docker/entrypoint.sh
 
-# Copy built frontend assets from node-build stage into the Python image
-COPY --from=node-build /build/taskboard/static/taskboard/dist /app/core/workspace/taskboard/static/taskboard/dist
+# NOTE: frontend assets are expected to be built outside the Docker build
+# and included in the repository (e.g. commit `static/taskboard_module/dist`).
+# If you want the Docker build to include them, run the node build step before
+# building the image and ensure `static/taskboard_module/dist` exists in the
+# build context so it will be copied by the following (now-local) path:
+# Note: frontend assets are mounted at runtime via docker-compose volumes
+# or built into the image prior to building. The Dockerfile no longer copies
+# local static assets at build time to avoid failing the build when they are
+# not present in the context.
 
 EXPOSE 8000
 

@@ -1,8 +1,7 @@
-name: taskboard
+name: django_web_framework
 services:
   db:
     image: mysql:latest
-    container_name: db
     restart: unless-stopped
     environment:
       MYSQL_DATABASE: taskboard_db
@@ -16,7 +15,6 @@ services:
 
   redis:
     image: redis:latest
-    container_name: redis
     restart: unless-stopped
     ports:
       - "6379:6379"
@@ -27,11 +25,13 @@ services:
     build:
       context: ..
       dockerfile: docker/Dockerfile
-    container_name: web
+    
     working_dir: /app
-    command: sh -c "cd core/workspace/taskboard && if [ -f package.json ]; then npm install --silent || true; npm run dev:css & fi; cd /app && python docker/wait_for_db.py && python manage.py runserver 0.0.0.0:8000"
+    # Frontend build is expected to be done outside the container; start Django only.
+    command: sh -c "python docker/wait_for_db.py && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - ..:/app
+      - ../static/taskboard_module/dist:/app/web_core/workspace/taskboard_module/static/taskboard_module/dist:ro
     ports:
       - "8000:8000"
     environment:
@@ -42,22 +42,23 @@ services:
       - DB_PASSWORD=Password6^
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - DJANGO_SETTINGS_MODULE=core.settings
+      - DJANGO_SETTINGS_MODULE=web_core.settings
     depends_on:
       - db
       - redis
 
-  # Note: Vite dev server removed; Tailwind CSS is run inside `web`.
+  # Note: Vite dev server removed; frontend assets should be built externally.
 
   web_test:
     build:
       context: ..
       dockerfile: docker/Dockerfile
-    container_name: web_test
+    
     working_dir: /app
-    command: sh -c "python docker/wait_for_db.py && python manage.py runserver 0.0.0.0:8000 --settings=core.settings_test"
+    command: sh -c "python docker/wait_for_db.py && python manage.py runserver 0.0.0.0:8000 --settings=web_core.settings_test"
     volumes:
       - ..:/app
+      - ../static/taskboard_module/dist:/app/web_core/workspace/taskboard_module/static/taskboard_module/dist:ro
     environment:
       - DB_HOST=db
       - DB_PORT=3306
@@ -66,7 +67,7 @@ services:
       - DB_PASSWORD=Password6^
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - DJANGO_SETTINGS_MODULE=core.settings_test
+      - DJANGO_SETTINGS_MODULE=web_core.settings_test
     depends_on:
       - db
       - redis
@@ -79,14 +80,14 @@ services:
     build:
       context: ..
       dockerfile: docker/ui.Dockerfile
-    container_name: ui
+    
     working_dir: /app/ui-tests
     # No bind-mounts for `ui` so baked-in node_modules remain available.
     # If you want to develop tests locally, remove these lines and rebuild the image.
     environment:
       - PLAYWRIGHT_BASE_URL=http://web-test:8000
     depends_on:
-      - web
+      - web_test
     tty: true
 
 # Using bind mounts so database files live inside the repo `data/` directory
