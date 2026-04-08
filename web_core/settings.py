@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "web_core.workspace.taskboard_module.apps.TaskboardConfig",
+    "web_core.workspace.taskboard.apps.TaskboardConfig",
 ]
 
 MIDDLEWARE = [

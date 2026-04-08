@@ -31,7 +31,7 @@ services:
     command: sh -c "python docker/wait_for_db.py && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - ..:/app
-      - ../static/taskboard_module/dist:/app/web_core/workspace/taskboard_module/static/taskboard_module/dist:ro
+      - ../static/taskboard/dist:/app/web_core/workspace/taskboard/static/taskboard/dist:ro
     ports:
       - "8000:8000"
     environment:
@@ -58,7 +58,7 @@ services:
     command: sh -c "python docker/wait_for_db.py && python manage.py runserver 0.0.0.0:8000 --settings=web_core.settings_test"
     volumes:
       - ..:/app
-      - ../static/taskboard_module/dist:/app/web_core/workspace/taskboard_module/static/taskboard_module/dist:ro
+      - ../static/taskboard/dist:/app/web_core/workspace/taskboard/static/taskboard/dist:ro
     environment:
       - DB_HOST=db
       - DB_PORT=3306

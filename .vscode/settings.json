@@ -1,14 +1,14 @@
 {
     "chat.tools.terminal.autoApprove": {
-        "/^python manage\\.py test web_core\\.workspace\\.taskboard_module\\.tests_ab_unittest$/": {
+        "/^python manage\\.py test web_core\\.workspace\\.taskboard\\.tests_ab_unittest$/": {
             "approve": true,
             "matchCommandLine": true
         },
-        "/^python -m pytest web_core/workspace/taskboard_module/tests_ab_pytest\\.py -q$/": {
+        "/^python -m pytest web_core/workspace/taskboard/tests_ab_pytest\\.py -q$/": {
             "approve": true,
             "matchCommandLine": true
         },
-        "/^python manage\\.py test web_core\\.workspace\\.taskboard_module\\.tests_ab_unittest -v 2$/": {
+        "/^python manage\\.py test web_core\\.workspace\\.taskboard\\.tests_ab_unittest -v 2$/": {
             "approve": true,
             "matchCommandLine": true
         },
@@ -16,15 +16,15 @@
             "approve": true,
             "matchCommandLine": true
         },
-        "/^python -m pytest web_core/workspace/taskboard_module/tests/test_urls\\.py::UrlsTests::test_named_urls_resolve -q$/": {
+        "/^python -m pytest web_core/workspace/taskboard/tests/test_urls\\.py::UrlsTests::test_named_urls_resolve -q$/": {
             "approve": true,
             "matchCommandLine": true
         },
-        "/^python -m pytest web_core/workspace_taskboard_module/tests/test_templates\\.py::TemplateRenderingTests::test_null_priority_tasks_are_pushed_to_end_and_ordered_by_created_at -q$/": {
+        "/^python -m pytest web_core/workspace_taskboard/tests/test_templates\\.py::TemplateRenderingTests::test_null_priority_tasks_are_pushed_to_end_and_ordered_by_created_at -q$/": {
             "approve": true,
             "matchCommandLine": true
         },
-        "/^python -m pytest web_core/workspace/taskboard_module/tests -q$/": {
+        "/^python -m pytest web_core/workspace/taskboard/tests -q$/": {
             "approve": true,
             "matchCommandLine": true
         },

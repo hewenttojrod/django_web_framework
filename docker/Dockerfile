@@ -44,9 +44,9 @@ COPY docker/entrypoint.sh /app/docker/entrypoint.sh
 RUN chmod +x /app/docker/entrypoint.sh
 
 # NOTE: frontend assets are expected to be built outside the Docker build
-# and included in the repository (e.g. commit `static/taskboard_module/dist`).
+# and included in the repository (e.g. commit `static/taskboard/dist`).
 # If you want the Docker build to include them, run the node build step before
-# building the image and ensure `static/taskboard_module/dist` exists in the
+# building the image and ensure `static/taskboard/dist` exists in the
 # build context so it will be copied by the following (now-local) path:
 # Note: frontend assets are mounted at runtime via docker-compose volumes
 # or built into the image prior to building. The Dockerfile no longer copies

@@ -1,3 +1,3 @@
-[submodule "web_core/workspace/taskboard_module"]
-	path = web_core/workspace/taskboard_module
-	url = https://github.com/hewenttojrod/taskboard_module.git
+[submodule "web_core/workspace/taskboard"]
+	path = web_core/workspace/taskboard
+	url = https://github.com/hewenttojrod/taskboard.git
