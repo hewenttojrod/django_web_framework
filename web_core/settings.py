@@ -13,6 +13,10 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from pathlib import Path
 
+from web_core.core._utils.workspace_urls import build_workspace_patterns
+
+workspace_path = Path(__file__).resolve().parent / "workspace"
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -43,8 +47,13 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "web_core.workspace.taskboard.apps.TaskboardConfig",
+    #"web_core.workspace.taskboard.apps.TaskboardConfig",
 ]
+
+for workspace_pattern in build_workspace_patterns(
+        module_file="", 
+        workspace_path=workspace_path):
+    INSTALLED_APPS.append(f"{workspace_pattern['pattern']}.{workspace_pattern['module']}Config")
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

@@ -47,5 +47,6 @@
         "Scripts\\run_tests.bat": true,
         "docker-compose": true,
         "docker build": true
-    }
+    },
+    "python.REPL.enableREPLSmartSend": false
 }

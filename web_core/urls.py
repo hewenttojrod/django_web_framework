@@ -16,9 +16,24 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import path, include
+from pathlib import Path
+
+from web_core.core._utils.workspace_urls import build_workspace_patterns
+
+workspace_path = Path(__file__).resolve().parent / "workspace"
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", include("web_core.workspace.taskboard.urls")),
 ]
+
+for workspace_pattern in build_workspace_patterns(
+        module_file="urls", 
+        workspace_path=workspace_path):
+    urlpatterns.append(path(f"{workspace_pattern['module']}/", include(workspace_pattern['pattern'])))
+
+for workspace_pattern in build_workspace_patterns(
+        module_file="urls_api", 
+        workspace_path=workspace_path):
+    urlpatterns.append(path(f"api/{workspace_pattern['module']}/", include(workspace_pattern['pattern'])))
+
