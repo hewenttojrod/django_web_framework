@@ -1,5 +1,5 @@
 """Shared utility helpers for the core app."""
 
-from .workspace_urls import build_workspace_urlpatterns
+from .workspace_urls import build_workspace_patterns
 
-__all__ = ["build_workspace_urlpatterns"]
+__all__ = ["build_workspace_patterns"]

@@ -46,14 +46,15 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
-    "django.contrib.staticfiles",
-    #"web_core.workspace.taskboard.apps.TaskboardConfig",
+    "django.contrib.staticfiles"
 ]
 
+    #"web_core.workspace.taskboard.apps.TaskboardConfig",
 for workspace_pattern in build_workspace_patterns(
         module_file="", 
         workspace_path=workspace_path):
-    INSTALLED_APPS.append(f"{workspace_pattern['pattern']}.{workspace_pattern['module']}Config")
+    module_formatted = workspace_pattern['module'][0].upper() + workspace_pattern['module'][1:]
+    INSTALLED_APPS.append(f"{workspace_pattern['pattern']}.apps.{module_formatted}Config")
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
