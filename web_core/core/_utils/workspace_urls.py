@@ -4,17 +4,15 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from django.urls import include, path
-
 
 def _has_include_target(
         module_dir: Path, 
         module_file: str
 ) -> bool:
     """Return True if a module leaf exists as either a module or package."""
-    module_file: Path = module_dir / f"{module_file}.py"
-    module_package: Path = module_dir / module_file / "__init__.py"
-    return module_file.exists() or module_package.exists()
+    module_file_path: Path = module_dir / f"{module_file}.py"
+    module_package_path: Path = module_dir / module_file / "__init__.py"
+    return module_file_path.exists() or module_package_path.exists()
 
 
 def find_workspace_modules(

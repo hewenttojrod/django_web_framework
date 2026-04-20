@@ -1,3 +1,6 @@
 [submodule "web_core/workspace/taskboard"]
 	path = web_core/workspace/taskboard
 	url = https://github.com/hewenttojrod/taskboard.git
+[submodule "web_core/workspace/BlueberryManager"]
+	path = web_core/workspace/BlueberryManager
+	url = https://github.com/hewenttojrod/BlueberryManager.git
