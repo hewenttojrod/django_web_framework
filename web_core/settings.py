@@ -46,7 +46,10 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
-    "django.contrib.staticfiles"
+    "django.contrib.staticfiles",
+    "sslserver",
+    "crispy_forms",
+    "crispy_bootstrap4",
 ]
 
     #"web_core.workspace.taskboard.apps.TaskboardConfig",
@@ -140,6 +143,21 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# HTTPS / CSRF settings
+# Include all trusted origins so CSRF validation passes over HTTPS.
+_csrf_origins = os.environ.get("CSRF_TRUSTED_ORIGINS")
+if _csrf_origins:
+    CSRF_TRUSTED_ORIGINS = [o.strip() for o in _csrf_origins.split(",") if o.strip()]
+else:
+    CSRF_TRUSTED_ORIGINS = [
+        "https://localhost:8000",
+        "https://127.0.0.1:8000",
+    ]
+
+# Tell Django it is behind an HTTPS proxy when the header is present.
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -159,3 +177,6 @@ if "test" in sys.argv or _running_under_pytest:
             "NAME": ":memory:",
         }
     }
+
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
+CRISPY_TEMPLATE_PACK = "bootstrap4"

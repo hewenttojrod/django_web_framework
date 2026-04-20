@@ -5,6 +5,10 @@ __pycache__/
 .env
 __tests/
 *.pem
+*.key
+*.csr
+*.srl
+*.ext
 *.sqlite3
 ui-tests/**
 node_modules
